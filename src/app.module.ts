@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ResponseMiddleware } from './middlewares/response.middleware';
 import { Users1730276645782 } from './migrations/1730276645782-users';
 import { Tasks1730282339113 } from './migrations/1730282339113-tasks';
 import { AuthModule } from './modules/auth/auth.module';
@@ -48,6 +49,7 @@ import { EnvironmentVariables } from './types/environment';
         migrations: [Users1730276645782, Tasks1730282339113],
         entities: [User, Task],
         migrationsRun: true,
+        logging: true,
       }),
     }),
     UsersModule,
@@ -57,4 +59,8 @@ import { EnvironmentVariables } from './types/environment';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(ResponseMiddleware).forRoutes('*'); // Apply the middleware to all routes
+  }
+}

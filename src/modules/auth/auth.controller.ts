@@ -86,11 +86,10 @@ export class AuthController {
       });
 
       // throwing an error when user not found
-      if (user) {
+      if (user)
         return response
           .status(HttpStatus.CONFLICT)
           .json('User already exists with given email.');
-      }
 
       // hashing password
       const hashedPassword = await bcrypt.hash(body.password, BCRYPT_ROUNDS);
