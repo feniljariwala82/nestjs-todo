@@ -9,6 +9,7 @@ import { ResponseMiddleware } from './middlewares/response.middleware';
 import { Users1730276645782 } from './migrations/1730276645782-users';
 import { Tasks1730282339113 } from './migrations/1730282339113-tasks';
 import { AuthModule } from './modules/auth/auth.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { Task } from './modules/tasks/tasks.entity';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { User } from './modules/users/users.entity';
@@ -55,6 +56,7 @@ import { EnvironmentVariables } from './types/environment';
     UsersModule,
     TasksModule,
     AuthModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,7 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
+import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Socket } from 'socket.io';
 import { EnvironmentVariables } from '../../types/environment';
 import { UsersService } from '../users/users.service';
 
@@ -12,7 +18,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly configService: ConfigService<EnvironmentVariables>,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: (req: Request | Socket) => {
+        if ('handshake' in req) {
+          // WebSocket request (Socket.IO handshake)
+          const token = req.handshake.query.token as string;
+          if (!token)
+            throw new UnauthorizedException('Missing authentication token');
+          return token;
+        } else {
+          // HTTP request
+          return ExtractJwt.fromAuthHeaderAsBearerToken()(req as Request);
+        }
+      },
       ignoreExpiration: false,
       secretOrKey: configService.get('JWT_SECRET'),
     });

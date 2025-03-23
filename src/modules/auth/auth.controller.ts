@@ -16,6 +16,7 @@ import { Request, Response } from 'express';
 import { BCRYPT_ROUNDS } from '../..//config/constants';
 import { ZodValidationPipe } from '../../pipes/ZodValidationPipe';
 import { EnvironmentVariables } from '../../types/environment';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 import {
   CreateUserDto,
   createUserSchema,
@@ -31,6 +32,7 @@ export class AuthController {
     private userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService<EnvironmentVariables>,
+    private readonly notificationGateway: NotificationsGateway,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -48,17 +50,21 @@ export class AuthController {
       });
 
       // throwing an error when user not found
-      if (!user) {
+      if (!user)
         return response.status(HttpStatus.NOT_FOUND).json('User not found.');
-      }
 
       // matching password
       const matches = await bcrypt.compare(body.password, user.password);
-      if (!matches) {
+      if (!matches)
         return response
           .status(HttpStatus.UNAUTHORIZED)
           .json('Invalid credentials.');
-      }
+
+      // notification
+      this.notificationGateway.notify(
+        `/users/${user.id}`,
+        `New login detected from a different device`,
+      );
 
       // creating auth token
       return response.status(HttpStatus.OK).json(
