@@ -16,20 +16,17 @@ export class TaskOwnershipGuard implements CanActivate {
     const taskId = parseInt(request.params.id, 10); // assumes task ID is passed as a route parameter
     const user = request.user;
 
-    if (isNaN(taskId)) {
-      throw new ForbiddenException('Invalid task ID.');
-    }
+    if (isNaN(taskId)) throw new ForbiddenException('Invalid task ID.');
 
     // verify if the task exists and belongs to the user
     const task = await this.tasksService.exists({
       where: { id: taskId, user_id: user.id },
     });
 
-    if (!task) {
+    if (!task)
       throw new ForbiddenException(
         "You don't have access to this task or Task not found.",
       );
-    }
 
     // if task is found and belongs to the user, allow access
     return true;

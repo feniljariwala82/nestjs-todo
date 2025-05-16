@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const createUserSchema = z
+const createUserSchema = z
   .object({
     first_name: z
       .string({ required_error: 'First name is required' })
@@ -18,14 +18,14 @@ export const createUserSchema = z
     password: z.string({ required_error: 'Password is required' }).trim(),
   })
   .required();
+type CreateUserDto = z.infer<typeof createUserSchema>;
 
-export type CreateUserDto = z.infer<typeof createUserSchema>;
-
-export const loginUserSchema = createUserSchema
+const loginUserSchema = createUserSchema
   .pick({
     email: true,
     password: true,
   })
   .required();
+type LoginDto = z.infer<typeof loginUserSchema>;
 
-export type LoginDto = z.infer<typeof loginUserSchema>;
+export { CreateUserDto, createUserSchema, LoginDto, loginUserSchema };
